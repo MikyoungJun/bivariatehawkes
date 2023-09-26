@@ -21,7 +21,7 @@ Boko Haram and Fulani Extremists from Jan 1, 2010 to Dec 31, 2017 were considere
 
 
 ### Covariate information ###
-1) Population:  xxx
-2)  https://hub.worldpop.org/geodata/summary?id=24771 (resolution of approximately 1km at the equator)
+1) Population: from the World Pop project, https://hub.worldpop.org/geodata/summary?id=24771 (resolution of approximately 1km at the equator)
+2) Elevation: from an R package, elevatr. 
 
 Check out data_process.R in this directory for examples on how we processed the data.
