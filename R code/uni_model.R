@@ -5,8 +5,8 @@
 
 NEED TO BE MODIFIED FURTHER AND COMMENTING
 
-#### Note: this file contains codes to fit M1-3, but minor modification would be needed (in places commented below) to fit other M1-x models 
-####################### 
+#### Note: this file contains codes to fit M1-3, but minor modification would be needed 
+#### (in places commented below) to fit other M1-x models 
 
 
 set.seed(0213)
@@ -29,8 +29,9 @@ ncluster=28
 
 
 
-### triggering function ###
+### space-time triggering function ###
 
+## below is an example of triggering function for M1-3
 
 g=function(s,s_i, dt, theta, w, sigma,pp1,pp2,sigma1,SS){   ## modified for stability condition!!
  
@@ -124,6 +125,7 @@ tt=sort(runif(n_t, T0, T1)) ## day within a year
 ##t_int=(T1-T0)/n_t
 
 t_int=1/n_t
+
 
 ### loglikelihood function ###
 
@@ -352,11 +354,8 @@ return(-temp) ## return negative likelihood for minimization
 
 ### numerical optimization ###
 
-
 ini=c(2,-2.5,-2.5,0)
 
 ##fit=optim(ini, logLik,control=list(maxit=10000000))
 
-
-##fit=optim(ini, logLik, control=list(maxit=100000000))
 fit=nlm(logLik, ini, stepmax=10, print.level=2,hessian=TRUE)
