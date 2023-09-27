@@ -1,13 +1,16 @@
 ######## Last updated 09/26/23
 ######## by Mikyoung Jun
 
-######## This file contains codes to process terrorism data from GTD, and covariates used from other sources in order to prepare them in a format 
-########  to be used for the analysis
+######## This file contains codes to process terrorism data from GTD, and covariates used 
+######## from other sources in order to prepare them in a format 
+######## to be used for the analysis
 
 
 ####### Terrorism data from GTD ########
 
 ### the following shows how one might process data for each country (just an example) ###
+### the original excel file can be downloaded from the GTD website: 
+###       https://www.start.umd.edu/data-tools/global-terrorism-database-gtd
 
 library(readxl)
 
