@@ -5,12 +5,13 @@
 
 NEED TO BE MODIFIED FURTHER AND COMMENTING
 
-#### Note: this file contains codes to fit M2-6, but minor modification would be needed (in places commented below) to fit other M2-x models 
+##### Note: this file contains codes to fit M2-6, but minor modification would be needed 
+##### (in places commented below) to fit other M2-x models 
 ####################### 
 
 set.seed(0213)
 
-load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
+### call libraries ###
 
 library("fields")
 
@@ -19,17 +20,24 @@ registerDoMC(cores=28)
 
 ncluster=28
 
-##install.packages("insol")
+### call data ###
 
 
 ### new: due to problem with processing time now (change in machine?)
+
+
+load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
 
 load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
 
 load("nigeria-processed.RData")
 
 
-g=function(s,s_i, dt, theta, w, sigma,gamma){
+### space-time triggering function ###
+
+## the following is an example for M2-6
+
+g=function(s,s_i, dt, theta, w, sigma,gamma){ ## marginal triggering function 
 
 s=matrix(s, ncol=2) ## multiple rows
 s_i=matrix(s_i, ncol=2) ## multiple rows matrix
@@ -44,7 +52,7 @@ return(temp)
 
 ##N=20 ## integral bound for g12
 
-g12=function(s,s_i, dt, theta, w, sigma,m1,m2){ ## alpha is the weight (??)
+g12=function(s,s_i, dt, theta, w, sigma,m1,m2){ ## alpha is the weight (??) ## cross-triggering function 
 
 s=matrix(s, ncol=2) ## multiple rows
 s_i=matrix(s_i, ncol=2) ## multiple rows matrix
@@ -55,7 +63,6 @@ s_i[,2]=s_i[,2]-m2
 ## treat time as scalar
 ##d=rdist.earth(s, s_i,miles=F)*1000 ## unit in meters
 d=rdist(s, s_i) ## Euclidean distance
-
 
 temp=sum(theta *1/w * exp(-dt/(T1-T0)/w) *1 /(2*pi*sigma^2) * exp(-(d)^2/(2*sigma^2)) ) ## increase with spatial distance d
 return(temp)
@@ -95,6 +102,8 @@ t_int=1/n_t
 
 area=0.06*0.048125*dim(cov)[1]
 s_area=area/n_s
+
+### loglikelihood ###
 
 
 logLik = function(par){
