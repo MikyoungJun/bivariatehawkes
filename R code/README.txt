@@ -1,4 +1,4 @@
-##### Here is a list of code provided to perform analysis presented in the paper with comments #####
+##### list of code provided to perform analysis presented in the paper with comments #####
 
 ### data processing ###
 
@@ -10,7 +10,7 @@
 - uni_model.R
 - bi_model.R
 
-## comments: 
+comments: 
 
 1. spatial distance: distance can be calculated with chordal distance or Euclidean distance. As long as the domain is small (as in the examples in the manuscript), it does not make much difference. If you use Euclidean distance, you need to conver the estimated triggering distance to the necessary unit (e.g. Km)
 2. time points are scaled to (0,1) for numerical stability. However, the results should not change even if you do not scale the time points
@@ -25,7 +25,7 @@
 - uni_fitted.R
 - bi_fitted.R
 
-## comments:
+comments:
 
 
 
