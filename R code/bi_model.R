@@ -23,6 +23,16 @@ ncluster=28
 ### call data ###
 
 
+T0=max(min(data.b[,3]),min(data.f[,3]))
+T1=min(max(data.b[,3]),max(data.f[,3]))
+
+data.b=data.b[data.b[,3]>=T0 & data.b[,3]<=T1,]
+data.f=data.f[data.f[,3]>=T0 & data.f[,3]<=T1,]
+
+t_u.b=sort(unique(data.b[,3]))
+t_u.f=sort(unique(data.f[,3]))
+
+
 ### new: due to problem with processing time now (change in machine?)
 
 
@@ -31,6 +41,14 @@ load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
 load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
 
 load("nigeria-processed.RData")
+
+load("finecov.RData")
+
+index=sort(sample(1:dim(cov)[1], n_s))
+
+##S=cbind(runif(n_s, 3,15), runif(n_s,5, 14)) ## irregular "grid" for integration over space
+
+##S=matrix(S, ncol=2)
 
 
 ### space-time triggering function ###
@@ -42,17 +60,13 @@ g=function(s,s_i, dt, theta, w, sigma,gamma){ ## marginal triggering function
 s=matrix(s, ncol=2) ## multiple rows
 s_i=matrix(s_i, ncol=2) ## multiple rows matrix
 
-## treat time as scalar
-##d=rdist.earth(s, s_i,miles=F)*1000 ## unit in meters
 d=rdist(s, s_i) ## Euclidean distance
 
 temp=sum(theta *1/w * exp(-dt/(T1-T0)/w)  *1/(2*pi*sigma^2*(1+dt/(T1-T0)/w)^(gamma)) *exp(-d^2/(2*sigma^2*(1+dt/(T1-T0)/w )^gamma )  ))
 return(temp)
 }
 
-##N=20 ## integral bound for g12
-
-g12=function(s,s_i, dt, theta, w, sigma,m1,m2){ ## alpha is the weight (??) ## cross-triggering function 
+g12=function(s,s_i, dt, theta, w, sigma,m1,m2){ ## cross triggering
 
 s=matrix(s, ncol=2) ## multiple rows
 s_i=matrix(s_i, ncol=2) ## multiple rows matrix
@@ -60,62 +74,40 @@ s_i=matrix(s_i, ncol=2) ## multiple rows matrix
 s_i[,1]=s_i[,1]-m1
 s_i[,2]=s_i[,2]-m2
 
-## treat time as scalar
-##d=rdist.earth(s, s_i,miles=F)*1000 ## unit in meters
 d=rdist(s, s_i) ## Euclidean distance
 
-temp=sum(theta *1/w * exp(-dt/(T1-T0)/w) *1 /(2*pi*sigma^2) * exp(-(d)^2/(2*sigma^2)) ) ## increase with spatial distance d
+temp=sum(theta *1/w * exp(-dt/(T1-T0)/w) *1 /(2*pi*sigma^2) * exp(-(d)^2/(2*sigma^2)) ) 
 return(temp)
 }
 
 
+### prep for integral approximation ###
 
-T0=max(min(data.b[,3]),min(data.f[,3]))
-T1=min(max(data.b[,3]),max(data.f[,3]))
-
-data.b=data.b[data.b[,3]>=T0 & data.b[,3]<=T1,]
-data.f=data.f[data.f[,3]>=T0 & data.f[,3]<=T1,]
-
-t_u.b=sort(unique(data.b[,3]))
-t_u.f=sort(unique(data.f[,3]))
-
-
-n_t=500 ## time resolution (at least 3000 needed...?)
+n_t=500 ## temporal resolution
 n_s=ncluster*200 ## space resolution
 
-##tt=seq(T0, T1,, n_t) ## regular "grid" for integration over time
 tt=sort(runif(n_t, T0, T1))
-
-load("finecov.RData")
-
-index=sort(sample(1:dim(cov)[1], n_s))
-
-##S=cbind(runif(n_s, 3,15), runif(n_s,5, 14)) ## irregular "grid" for integration over space
-
-##S=matrix(S, ncol=2)
 
 S=cov[index,1:2]
 S=as.matrix(S)
 
 t_int=1/n_t
 
-
 area=0.06*0.048125*dim(cov)[1]
 s_area=area/n_s
 
-### loglikelihood ###
 
+### loglikelihood ###
 
 logLik = function(par){
   
   print(par)
 
-
-### new parametrization!!
-
-angle=(2*exp(par[1])/(1+exp(par[1]))-1)*pi/2
-lambda1=0.1+exp(par[2])/(1+exp(par[2]))*(1-0.1)
-lambda2=exp(par[3])/(1+exp(par[3]))*lambda1
+  ## parametrization to ensure the stability condition is satisfied ##
+  
+  angle=(2*exp(par[1])/(1+exp(par[1]))-1)*pi/2
+  lambda1=0.1+exp(par[2])/(1+exp(par[2]))*(1-0.1)
+  lambda2=exp(par[3])/(1+exp(par[3]))*lambda1
 
 A=matrix(c(cos(angle), sin(angle), -sin(angle), cos(angle)),2,2, byrow=FALSE)
 B=diag(c(lambda1, lambda2),2,2)
@@ -133,8 +125,6 @@ cat(c(theta1, theta2, alpha1, alpha2), "\n")
 
 A=matrix(c(theta1, alpha1, alpha2, theta2), 2,2, byrow=TRUE)
 B=eigen(A)$values
-print(B)
-
 
   w1=exp(par[5])
 w2=exp(par[6])
@@ -144,19 +134,11 @@ w12=exp(par[7])
 sigma2=exp(par[9])
 sigma12=exp(par[10])
 
-
 gamma1=exp(par[13])/(1+exp(par[13]))
 gamma2=exp(par[14])/(1+exp(par[14]))
 
 m1=(par[11])
 m2=par[12]
-
-
-
-
-mu0=0
-mu01=0
-
 
 ## save g for event times first (boko haram)
 
@@ -263,12 +245,10 @@ temp3=rbind(temp3, c(k,aa[i],temp2))
 return(temp3)
 }
 
-
 g_tt=rbind(g_tt, g_tt_r)
 
 g_i.b=g_i
 g_tt.b=g_tt
-
 
 ### now fulani
 
@@ -304,7 +284,6 @@ return(temp3)
 
 aa=((ncluster)*a+1):(length(t_u))
 
-
 if(length(t_u)/ncluster!=a){
 
 g_i_r=foreach(i=1:length(aa), .combine="rbind") %dopar%{
@@ -324,7 +303,6 @@ temp3=rbind(temp3, c(k,aa[i],temp2))
 
 return(temp3)
 }
-
 
 g_i=rbind(g_i, g_i_r)
 }
@@ -372,18 +350,15 @@ temp2=g(temp1,S, tt[aa[i]]-t_u[k],theta2,w2,sigma2,gamma2)
 
 temp3=rbind(temp3, c(k,aa[i],temp2))
 }
-
 }
 
 return(temp3)
 }
 
-
 g_tt=rbind(g_tt, g_tt_r)
 
 g_i.f=g_i
 g_tt.f=g_tt
-
 
 print("g for bf")
 
@@ -628,10 +603,8 @@ return(temp3)
 
 g_tt=rbind(g_tt, g_tt_r)
 
-
 g_i.fb=g_i
 g_tt.fb=g_tt
-
 
 #### likelihood part for boko haram first
 
@@ -673,7 +646,6 @@ logL1=logL1+temp
 }
 
 print("first part done")
-
 
 ## second part (integral over space and time)
 
@@ -807,25 +779,14 @@ return(-temp) ## return negative likelihood for minimization
 
 
 
-##fit=optim(ini, logLik,control=list(maxit=10000000))
+##### optimization #####
 
-
-
-##print(fit)
 
 ini=c(0.5127791 , 1.1774306 , 2.3361057, 5.1848053 , 0.9516783,  0.5296093, -2.3333569, -5.5684722 ,-3.1044084,  0.5135355 , 1.7365658,  9.4819854, -0.7316783,0)
 
-##fit=optim(ini, logLik, control=list(maxit=100000000))
-load("m2-6-revision-result.RData")
-
-ini=fit$estimate
+fit=optim(ini, logLik, control=list(maxit=100000000))
 
 fit=nlm(logLik, ini, stepmax=20, print.level=2,hessian=TRUE)
-
-save(fit, file="m2-6-revision-result-1.RData")
-
-print(fit)
-
 
 
 
