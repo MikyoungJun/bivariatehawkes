@@ -4,7 +4,6 @@
 
 - data_process.R
 
-
 ### model fitting ###
 
 - uni_model.R
@@ -20,12 +19,17 @@ comments:
 6. For numerical optimization, nlm and optim were used interchangeably to ensure that we obtain stable numerical optima (with Hessians for standard errors).
 
 
-### handling fitted results ###
+### fitted results ###
 
-- uni_fitted.R
-- bi_fitted.R
+comments: 
 
-comments:
+1. most of plots and tables presented in the manuscript are simple plotting of data (scatter plots, maps, histograms, time series graphs)
+2. two R files that help you to calculate asymptotic standard errors and fitted intensity curves are presented (for Afghanistan example) :
+- hessian.R
+- intensity.R
+
+
+
 
 
 
