@@ -11,7 +11,7 @@ NEED TO BE MODIFIED FURTHER AND COMMENTING
 
 set.seed(0213)
 
-### call libraries ###
+#### call libraries ####
 
 library("fields")
 
@@ -20,8 +20,10 @@ registerDoMC(cores=28)
 
 ncluster=28
 
-### call data ###
+#### call data ####
 
+##(read comments in uni_model.R) 
+## data.b contains data for Boko Haram and data.f for Fulani Extremists
 
 T0=max(min(data.b[,3]),min(data.f[,3]))
 T1=min(max(data.b[,3]),max(data.f[,3]))
@@ -29,20 +31,10 @@ T1=min(max(data.b[,3]),max(data.f[,3]))
 data.b=data.b[data.b[,3]>=T0 & data.b[,3]<=T1,]
 data.f=data.f[data.f[,3]>=T0 & data.f[,3]<=T1,]
 
+
+
 t_u.b=sort(unique(data.b[,3]))
 t_u.f=sort(unique(data.f[,3]))
-
-
-### new: due to problem with processing time now (change in machine?)
-
-
-load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
-
-load("Nigeria.RData") ## only Nigeria data saved (processed in my mac R)
-
-load("nigeria-processed.RData")
-
-load("finecov.RData")
 
 index=sort(sample(1:dim(cov)[1], n_s))
 
@@ -82,6 +74,14 @@ return(temp)
 
 
 ### prep for integral approximation ###
+T0=max(min(data.b[,3]),min(data.f[,3]))
+T1=min(max(data.b[,3]),max(data.f[,3]))
+
+data.b=data.b[data.b[,3]>=T0 & data.b[,3]<=T1,]
+data.f=data.f[data.f[,3]>=T0 & data.f[,3]<=T1,]
+
+t_u.b=sort(unique(data.b[,3]))
+t_u.f=sort(unique(data.f[,3]))
 
 n_t=500 ## temporal resolution
 n_s=ncluster*200 ## space resolution
