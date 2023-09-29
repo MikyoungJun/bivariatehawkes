@@ -31,19 +31,28 @@ T1=min(max(data.b[,3]),max(data.f[,3]))
 data.b=data.b[data.b[,3]>=T0 & data.b[,3]<=T1,]
 data.f=data.f[data.f[,3]>=T0 & data.f[,3]<=T1,]
 
-
-
 t_u.b=sort(unique(data.b[,3]))
 t_u.f=sort(unique(data.f[,3]))
 
-index=sort(sample(1:dim(cov)[1], n_s))
+#### prep for integral approximation ####
 
-##S=cbind(runif(n_s, 3,15), runif(n_s,5, 14)) ## irregular "grid" for integration over space
+n_t=500 ## temporal resolution
+n_s=ncluster*200 ## space resolution
 
-##S=matrix(S, ncol=2)
+tt=sort(runif(n_t, T0, T1))
+
+load("nigeria-grid.RData") ## contains fine resolution grid information "grid" for Nigeria 
+
+index=sort(sample(1:dim(grid)[1], n_s)) 
+S=grid[index,]
+
+t_int=1/n_t
+
+area=0.06*0.048125*dim(grid)[1]
+s_area=area/n_s
 
 
-### space-time triggering function ###
+#### space-time triggering function ####
 
 ## the following is an example for M2-6
 
@@ -73,31 +82,7 @@ return(temp)
 }
 
 
-### prep for integral approximation ###
-T0=max(min(data.b[,3]),min(data.f[,3]))
-T1=min(max(data.b[,3]),max(data.f[,3]))
-
-data.b=data.b[data.b[,3]>=T0 & data.b[,3]<=T1,]
-data.f=data.f[data.f[,3]>=T0 & data.f[,3]<=T1,]
-
-t_u.b=sort(unique(data.b[,3]))
-t_u.f=sort(unique(data.f[,3]))
-
-n_t=500 ## temporal resolution
-n_s=ncluster*200 ## space resolution
-
-tt=sort(runif(n_t, T0, T1))
-
-S=cov[index,1:2]
-S=as.matrix(S)
-
-t_int=1/n_t
-
-area=0.06*0.048125*dim(cov)[1]
-s_area=area/n_s
-
-
-### loglikelihood ###
+#### loglikelihood ####
 
 logLik = function(par){
   
@@ -638,8 +623,7 @@ temp1=matrix(temp1, ncol=2)
 
 ##print(dim(temp1))
 
-temp=(temp+tempp)##+exp(mu0)##+exp(mu0+mu1*(t_u[i]-T0)/T1+mu2*((t_u[i]-T0)/T1)^2+mu3*temp1[,1]+mu4*temp1[,2]+mu5*temp1[,1]*temp1[,2]) ## lambda_i
-
+temp=(temp+tempp)
 temp=log(sum(temp)+10^(-20))
 
 logL1=logL1+temp
@@ -664,8 +648,7 @@ tempp=matrix(tempp, ncol=3)
 
 tempp=sum(tempp[,3])
 
-temp=(temp+tempp)##+exp(mu0)##+exp(mu0+mu1*(tt[i]-T0)/T1+mu2*((tt[i]-T0)/T1)^2+mu3*S[,1]+mu4*S[,2]+mu5*S[,1]*S[,2]) ## lambda
-
+temp=(temp+tempp)
 temp=sum(temp)
 
 logL2=logL2+temp
@@ -681,7 +664,6 @@ logL2.b=logL2
 
 
 ## now likleihood part for fulani
-
 
 ## first part of the likelihood function (not integral)
 
@@ -719,10 +701,7 @@ temp=10^(-300)
 
 if(temp+tempp>0){
 
-
-
-temp=(temp+tempp)#+exp(mu01)##+exp(mu01+mu11*(t_u[i]-T0)/T1+mu21*((t_u[i]-T0)/T1)^2+mu31*temp1[,1]+mu41*temp1[,2]+mu51*temp1[,1]*temp1[,2]) ## lambda_i
-
+temp=(temp+tempp)
 }
 
 temp=log(sum(temp)+10^(-20))
@@ -751,8 +730,7 @@ tempp=matrix(tempp, ncol=3)
 
 tempp=sum(tempp[,3])
 
-temp=(temp+tempp)##+exp(mu01)##+exp(mu01+mu11*(tt[i]-T0)/T1+mu21*((tt[i]-T0)/T1)^2+mu31*S[,1]+mu41*S[,2]+mu51*S[,1]*S[,2]) ## lambda
-
+temp=(temp+tempp)##+exp(mu01)
 temp=sum(temp)
 
 logL2=logL2+temp
@@ -766,8 +744,6 @@ cat("log part1", logL1, " log part2", logL2,"\n")
 logL1.f=logL1
 logL2.f=logL2
 
-
-
 temp=logL1.b+logL2.b+logL1.f+logL2.f
 
 
@@ -779,7 +755,7 @@ return(-temp) ## return negative likelihood for minimization
 
 
 
-##### optimization #####
+#### optimization ####
 
 
 ini=c(0.5127791 , 1.1774306 , 2.3361057, 5.1848053 , 0.9516783,  0.5296093, -2.3333569, -5.5684722 ,-3.1044084,  0.5135355 , 1.7365658,  9.4819854, -0.7316783,0)
