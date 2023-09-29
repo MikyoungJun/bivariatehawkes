@@ -3,14 +3,13 @@
 ### by Mikyoung Jun
 ####################################
 
-NEED TO BE MODIFIED FURTHER AND COMMENTING
 
 #### Note: this file contains codes to fit M1-3, but minor modification would be needed 
 #### (in places commented below) to fit other M1-x models 
 
 set.seed(0213)
 
-### call libraries and necessary data ###
+##### call libraries #####
 
 library("chron")
 library("fields")
@@ -19,12 +18,22 @@ registerDoMC(cores=28)
 
 ncluster=28
 
-### read data ###
+##### prepare data #####
 
-popu
+## read data for terrorism and population data (see data_process.R) 
+
+### terrorism data ###
+
+## prepare the data in a format that each row corresponds one attack, and first two columns for lon/lat, and third column for time
+## we call it "data1" below
+
+### population data ###
+
+## code below shows how we process original counts data for population to scaled one as described in the manuscript
+## popu is the matrix that contains population (counts) per year (year as column and two for each location, i.e. spatial grids)
+## first two columns are for spatial coordinates and the rest are for years (for Afghanistan data)
 
 popu=as.matrix(popu)
-
 
 ## calculate PP (maximum population) for each year
 
@@ -43,39 +52,37 @@ for(i in 3:14){
 popu1=cbind(popu1, log(popu[S.index,i]+1)/PP[i-2])
 }
 
-
-load("pop.ta.new.RData")
-
-time1=data1[,3]##[events.ta[,1]==yy] ## julian day
+## we also need population info for the location/time of each terrorism attack (that can be extracted from popu1). 
+## We call it "popu1.e"
 
 
-pop.ta1=NULL
-for(i in 1:length(pop.ta)){
+#### prep for numerical approximation of the integral of intensity ####
 
-
-pop.ta1=c(pop.ta1, log(pop.ta[i]+1)/PP[(data[i,1]-2001)])    ##[events.ta[,1]==yy]/sum(popu[,14])
-}
-
-
-load("pop.ta.new.RData")
-
-time1=data1[,3]##[events.ta[,1]==yy] ## julian day
+time1=data1[,3] ## julian day
 
 t_u=sort(unique(time1)) ## julian day
 
 T0=min(t_u)
 T1=max(t_u)
 
-##load("afghan-spec-all.RData")
-##data=data1
+n_t=800 ## time resolution 
+n_s=10000 ## spatial resolution 
 
-##load("afghan.RData")
+S=as.matrix(popu1[,1:2])
+S.index=sort(sample(1:dim(S)[1], n_s))
+S1=S[S.index,]
+S1=as.matrix(S1)
 
-##load("afg-jittered-data.RData")
+area=62.71 ## approximate area of the country
+
+s_area=area/n_s
+
+tt=sort(runif(n_t, T0, T1)) ## time points for approximation
+
+t_int=1/n_t
 
 
-
-### space-time triggering function ###
+#### space-time triggering function ####
 
 ## below is an example of triggering function for M1-3
 
@@ -93,26 +100,7 @@ temp=sum(temp1)
 return(temp)
 }
 
-### prep for numerical approximation of the integral of intensity ###
-
-n_t=800 ## time resolution 
-n_s=10000 ## spatial resolution 
-
-S=as.matrix(popu[,1:2])
-S.index=sort(sample(1:dim(S)[1], n_s))
-S1=S[S.index,]
-S1=as.matrix(S1)
-
-area=62.71 ## approximate area of the country
-
-s_area=area/n_s
-
-tt=sort(runif(n_t, T0, T1)) ## time points for approximation
-
-t_int=1/n_t
-
-
-### loglikelihood function ###
+#### loglikelihood function ####
 
 logLik = function(par){
   
@@ -129,7 +117,7 @@ theta1=exp(par[1])/(1+exp(par[1]))
   
 sigma11=exp(par[4])-sigma1
 
-SS=sigma1+sigma11##*max(popu1) ## !
+SS=sigma1+sigma11
 
 a=floor(length(t_u)/ncluster)
 
@@ -145,7 +133,7 @@ if(j >1){
 
 for(k in 1:(j-1)){
 
-if(t_u[j]-t_u[k]<300){
+##if(t_u[j]-t_u[k]<300){
 
 temp1=data1[time1==t_u[k],1:2]
 
@@ -156,8 +144,6 @@ temp2=g(temp1, temp, (t_u[j]-t_u[k])/(T1-T0),theta1,w1,sigma1,pp1,pp2,sigma11,SS
 
 temp3=rbind(temp3, c(k,j,temp2))
 }
-
-
 }
 }
 }
@@ -178,8 +164,8 @@ for(k in 1:(aa[i]-1)){
 
 temp1=data1[time1==t_u[k],1:2]
 
-pp1=pop.ta1[time1==t_u[k]]
-pp2=pop.ta1[time1==t_u[aa[i]]]
+pp1=popu1.e[time1==t_u[k]]
+pp2=popu1.e[time1==t_u[aa[i]]]
 
 temp2=g(temp1, temp, (t_u[aa[i]]-t_u[k])/(T1-T0),theta1,w1,sigma1,pp1,pp2,sigma11,SS)
 
@@ -210,7 +196,7 @@ if(t_u[k]<tt[j]){
 
 temp1=data1[time1==t_u[k],1:2]
 
-pp1=pop.ta1[time1==t_u[k]]
+pp1=popu1.e[time1==t_u[k]]
 
 tempp=month.day.year(tt[j])$year
 temp2=g(temp1,S1, (tt[j]-t_u[k])/(T1-T0),theta1,w1,sigma1, pp1  ,popu1[,tempp-2002+1],sigma11,SS)
@@ -238,7 +224,7 @@ if(t_u[k]<tt[aa[i]]){
 
 temp1=data1[time1==t_u[k],1:2]
 
-pp1=pop.ta1[time1==t_u[k]]
+pp1=popu1.e[time1==t_u[k]]
 
 tempp=month.day.year(tt[aa[i]])$year
 
@@ -268,7 +254,7 @@ temp=matrix(temp, ncol=3)
 
 temp=sum(temp[,3]) ## sum of g's up to ith event time
 
-pp=pop.ta1[time1==t_u[i]]
+pp=popu1.e[time1==t_u[i]]
 temp=log((temp)+(exp(rep(mu0, length(pp)))))
 
 temp=sum((temp))
@@ -311,7 +297,9 @@ return(-temp) ## return negative likelihood for minimization
 }
 
 
-### numerical optimization ###
+#### numerical optimization ####
+
+## We use optim and nlm interchangeably to ensure numerical convergence
 
 ini=c(2,-2.5,-2.5,0)
 
