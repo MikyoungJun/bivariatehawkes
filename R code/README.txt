@@ -19,14 +19,16 @@ comments:
 6. For numerical optimization, nlm and optim were used interchangeably to ensure that we obtain stable numerical optima (with Hessians for standard errors).
 
 
-### fitted results ###
+### calculation of asymptotic standard errors ###
+
+-hessian.R
 
 comments: 
 
-1. most of plots and tables presented in the manuscript are simple plotting of data (scatter plots, maps, histograms, time series graphs)
-2. two R files that help you to calculate asymptotic standard errors and fitted intensity curves are presented (example given for Afghanistan data analysis) :
-- hessian.R
-- intensity.R
+1. See the supplemental material on details of how asymptotic standard errors of parameter estimates were calculated.
+2. Specifically, we show an example for the bivariate case (Nigerian data) in hessian.R code.
+
+
 
 
 
