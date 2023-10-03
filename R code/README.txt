@@ -24,7 +24,7 @@ comments:
 comments: 
 
 1. most of plots and tables presented in the manuscript are simple plotting of data (scatter plots, maps, histograms, time series graphs)
-2. two R files that help you to calculate asymptotic standard errors and fitted intensity curves are presented (for Afghanistan example) :
+2. two R files that help you to calculate asymptotic standard errors and fitted intensity curves are presented (example given for Afghanistan data analysis) :
 - hessian.R
 - intensity.R
 
