@@ -1,13 +1,12 @@
 ####################################
-### updated: 09/26/23
+### updated: 10/06/23
 ### by Mikyoung Jun
 ####################################
 
-NEED TO BE MODIFIED FURTHER AND COMMENTING
 
 ##### Note: this file contains codes to fit M2-6, but minor modification would be needed 
 ##### (in places commented below) to fit other M2-x models 
-####################### 
+
 
 set.seed(0213)
 
@@ -22,7 +21,7 @@ ncluster=28
 
 #### call data ####
 
-##(read comments in uni_model.R) 
+## (read comments in uni_model.R) 
 ## data.b contains data for Boko Haram and data.f for Fulani Extremists
 
 T0=max(min(data.b[,3]),min(data.f[,3]))
@@ -41,7 +40,7 @@ n_s=ncluster*200 ## space resolution
 
 tt=sort(runif(n_t, T0, T1))
 
-load("nigeria-grid.RData") ## contains fine resolution grid information "grid" for Nigeria 
+load("nigeria-grid.RData") ## contains fine resolution grid information "grid" for Nigeria, available under "data" directory 
 
 index=sort(sample(1:dim(grid)[1], n_s)) 
 S=grid[index,]
@@ -365,8 +364,6 @@ for(j in (i-1)*a+(1:a)){
 
 temp=data[data[,3]==t_u[j],1:2]
 
-##if(j >1){
-
 for(k in 1:length(t_u_1)){
 
 if(t_u_1[k]<t_u[j]){
@@ -378,7 +375,7 @@ temp2=g12(temp1, temp, t_u[j]-t_u_1[k],alpha1,w12,sigma12,m1,m2)
 temp3=rbind(temp3, c(k,j,temp2))
 }
 }
-}
+
 return(temp3)
 }
 
@@ -487,7 +484,6 @@ for(j in (i-1)*a+(1:a)){
 
 temp=data[data[,3]==t_u[j],1:2]
 
-##if(j >1){
 
 for(k in 1:length(t_u_1)){
 
@@ -500,7 +496,7 @@ temp2=g12(temp1, temp, t_u[j]-t_u_1[k],alpha2,w12,sigma12,m1,m2)
 temp3=rbind(temp3, c(k,j,temp2))
 }
 }
-}
+
 return(temp3)
 }
 
@@ -615,8 +611,7 @@ tempp=matrix(tempp, ncol=3)
 temp=sum(temp[,3]) ## sum of g's up to ith event time
 
 tempp=sum(tempp[,3])
-
-
+  
 temp1=data[data[,3]==t_u[i],1:2]
 
 temp1=matrix(temp1, ncol=2)
@@ -691,11 +686,9 @@ temp1=matrix(temp1, ncol=2)
 
 ##print(dim(temp1))
 
-
 if(temp+tempp<=0){
 
 temp=10^(-300)
-
 
 }
 
@@ -708,7 +701,6 @@ temp=log(sum(temp)+10^(-20))
 
 logL1=logL1+temp
 }
-
 
 print("first part done")
 
@@ -730,12 +722,11 @@ tempp=matrix(tempp, ncol=3)
 
 tempp=sum(tempp[,3])
 
-temp=(temp+tempp)##+exp(mu01)
+temp=(temp+tempp)
 temp=sum(temp)
 
 logL2=logL2+temp
 }
-
 
 logL2=-logL2*t_int*s_area
 
@@ -752,7 +743,6 @@ cat("loglikelihood", temp, "\n")
 return(-temp) ## return negative likelihood for minimization
 
 }
-
 
 
 #### optimization ####
