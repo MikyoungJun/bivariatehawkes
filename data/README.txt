@@ -4,7 +4,7 @@ There are multiple data sets used in the work for terrorism and accompanying cov
 Original data are publically available websites or R packages.
 In this work, we mainly performed analysis using terrorism data from GTD (see I below) and the population data from WorldPop (see II below).
 
-Check out data_process.R in this directory for examples on how we processed the data.
+Check out data_process.R under R code directory for examples on how we processed the data.
 
 ### I. Terrorism data ###
 
@@ -35,3 +35,6 @@ START (National Consortium for the Study of Terrorism and Responses to Terrorism
 In addition to population, we also considered elevation as covariate but did not find as effective as population. 
 2) Elevation: from an R package, elevatr. 
 
+### nigeria-grid.RData ###
+
+The R data file contains longitude and latitude information for fine grid we used for the approximation of integral in the likelihood for Nigerian example.
