@@ -1,3 +1,8 @@
+####################################
+### updated: 10/06/23
+### by Mikyoung Jun
+####################################
+
 ##### An example for calculating asymptotic standard errors based on Hessian matrix given by the optimization routine #####
 
 ### We show an example of M2-6 model for bivariate case
