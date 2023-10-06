@@ -1,5 +1,8 @@
-######## Last updated 09/26/23
-######## by Mikyoung Jun
+####################################
+### updated: 9/26/23
+### by Mikyoung Jun
+####################################
+
 
 ######## This file contains codes to process terrorism data from GTD, and covariates used 
 ######## from other sources in order to prepare them in a format 
@@ -10,7 +13,7 @@
 
 ### the following shows how one might process data for each country (just an example) ###
 ### the original excel file can be downloaded from the GTD website: 
-###       https://www.start.umd.edu/data-tools/global-terrorism-database-gtd
+###     https://www.start.umd.edu/data-tools/global-terrorism-database-gtd
 
 library(readxl)
 
@@ -50,8 +53,6 @@ save(afg13, file="xxx.RData") ## xxx for file name
 ### Nigeria ###
 
 ## do similarly to above but extract for Boko Haram and Fulani Extremists 
-
-
 
 
 
